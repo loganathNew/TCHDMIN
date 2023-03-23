@@ -301,13 +301,4 @@ class HomeController extends Controller
             return response()->json($response, 422);
         }
     }
-
-
-    public function test()
-    {
-        $event['module'] = "Inward";
-        $event['action'] = "Delete";
-        $event['record'] = Product::findOrFail(4)->first();
-        event(new ActionLog($event));
-    }
 }

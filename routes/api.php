@@ -59,5 +59,3 @@ Route::group(['middleware' => ['cors']], function () {
     });
     Route::post('/auth/check', 'Api\LoginController@checkAuth');
 });
-Route::get('/test', 'Api\HomeController@test');
-Route::get('/testgetLogfiles', 'Api\HomeController@getLogfiles');
