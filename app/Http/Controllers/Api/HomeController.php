@@ -157,7 +157,6 @@ class HomeController extends Controller
 
             $final_data = [];
             $duplicate_data = [];
-            //dd($balances);
 
             foreach ($items as $key1 => $item) {
                 foreach ($locations as $key => $location) {
