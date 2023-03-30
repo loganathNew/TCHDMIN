@@ -13,7 +13,7 @@ class UserController extends Controller
     public function getall()
     {
         try {
-            $result = User::select('id', 'name', 'login_id', 'password')->orderBy('id', 'DESC')->get();
+            $result = User::select('id', 'name', 'login_id', 'role', 'password')->orderBy('id', 'DESC')->get();
             $response = ['type' => "success", 'data' => $result, 'msg' => "User Data fetch successfully"];
             return response()->json($response, 200);
         } catch (\Exception $e) {
