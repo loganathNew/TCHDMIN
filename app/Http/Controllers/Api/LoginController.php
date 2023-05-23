@@ -25,7 +25,7 @@ class LoginController extends Controller
             ]);
             if ($validator->fails()) :
                 $errors = implode(" ", array_flatten(array_values($validator->errors()->getMessages())));
-                $response = ['type' => "error", 'errors' => $errors, 'msg'=>"Please fill all fields"];
+                $response = ['type' => "error", 'errors' => $errors, 'msg' => "Please fill all fields"];
                 return response()->json($response, 200);
             endif;
 
@@ -94,5 +94,17 @@ class LoginController extends Controller
             $response = ['type' => "error", 'data' => [], 'msg' => "Something went wrong"];
             return response()->json($response, 422);
         }
+    }
+
+    public function checking_authenticate(Request $request)
+    {
+        $user = null;
+        if ($request->user_id != "") {
+            $token = Token::where('user_id', $request->user_id)->first();
+            if ($token) {
+                $user = User::where('id', $request->user_id)->first();
+            }
+        }
+        return response()->json(['user' => $user]);
     }
 }

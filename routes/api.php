@@ -40,6 +40,12 @@ Route::group(['middleware' => ['cors']], function () {
         Route::put('/inters/{id}', 'Api\InterController@create');
         Route::delete('/inters/{id}', 'Api\InterController@delete');
 
+        Route::post('/balances/create', 'Api\BalanceController@create');
+        Route::get('/balances/{filter_data}', 'Api\BalanceController@getAll');
+        Route::get('/balances/edit/{id}', 'Api\BalanceController@get');
+        Route::put('/balances/{id}', 'Api\BalanceController@create');
+        Route::delete('/balances/{id}', 'Api\BalanceController@delete');
+
         Route::post('/outwards/create', 'Api\OutwardController@create');
         Route::get('/outwards/{filter_data}', 'Api\OutwardController@getAll');
         Route::get('/outwards/edit/{id}', 'Api\OutwardController@get');
@@ -58,5 +64,6 @@ Route::group(['middleware' => ['cors']], function () {
         Route::get('/getLogfiles', 'Api\HomeController@getLogfiles');
     });
     Route::post('/auth/check', 'Api\LoginController@checkAuth');
+    Route::post('/auth/checking', 'Api\LoginController@checking_authenticate');
 });
 Route::get('/testgetLogfiles', 'Api\HomeController@getLogfiles');

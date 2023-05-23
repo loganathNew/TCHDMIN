@@ -11,6 +11,7 @@ use App\Balance;
 use App\Location;
 use DB;
 use App\Events\ActionLog;
+use App\Supplier;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
@@ -268,9 +269,16 @@ class HomeController extends Controller
                     $data[] = $result;
                 }
                 // [0 => ['id' => "", "name" => 'Please select Item', "des" => "", "value" => '0']
-                $datas[$table_key] = array_merge([0 => ['id' => "", "name" => 'Please select Item', "des" => "", "value" => '0']], $data);
+                $datas[$table_key] = array_merge([0 => ['id' => "", "name" => 'Please select', "des" => "", "value" => '0']], $data);
             }
-
+            $ecs = [
+                ['id' => "1", "name" => "below 0.5", "value" => "1"],
+                ['id' => "2", "name" => "below 1", "value" => "2"],
+                ['id' => "3", "name" => "below 1.5", "value" => "3"],
+                ['id' => "4", "name" => "below 2", "value" => "4"],
+                ['id' => "5", "name" => "above 3", "value" => "5"]
+            ];
+            $datas['ecs'] =  array_merge([0 => ['id' => "", "name" => 'Please select ecs', "value" => '']], $ecs);
             return response()->json($datas, 200);
         } catch (\Exception $e) {
             //dd($e->getMessage());

@@ -24,6 +24,8 @@ class InwardController extends Controller
             $item_id = $filter_datas[1];
             $start_date = (!empty($filter_datas[2])) ? $filter_datas[2] : date("Y-m-01", strtotime(""));
             $end_date = (!empty($filter_datas[3])) ? $filter_datas[3] : date("Y-m-d");
+            $supplier_id = $filter_datas[4];
+            $ec = (int) $filter_datas[5];
             $products = Product::select(
                 'products.id',
                 'inward_id',
@@ -100,10 +102,41 @@ class InwardController extends Controller
                 }));
             }
 
+            if ($supplier_id != "") {
+                $products = array_values(array_filter($products, function ($var) use ($supplier_id) {
+                    return $var['supplier_id'] == $supplier_id;
+                }));
+            }
+
 
             $products = array_values(array_filter($products, function ($var) use ($start_date, $end_date) {
                 return ($var['inward']['r_date'] >= $start_date) && ($var['inward']['r_date'] <= $end_date);
             }));
+
+
+            if ($ec != "") {
+                if ($ec == 1) {
+                    $products = array_values(array_filter($products, function ($var) use ($ec) {
+                        return ($var['inward']['aec'] < 0.5);
+                    }));
+                } else if ($ec == 2) {
+                    $products = array_values(array_filter($products, function ($var) use ($ec) {
+                        return ($var['inward']['aec'] < 1);
+                    }));
+                } else if ($ec == 3) {
+                    $products = array_values(array_filter($products, function ($var) use ($ec) {
+                        return ($var['inward']['aec'] < 1.5);
+                    }));
+                } else if ($ec == 4) {
+                    $products = array_values(array_filter($products, function ($var) use ($ec) {
+                        return ($var['inward']['aec'] < 2);
+                    }));
+                } else if ($ec == 5) {
+                    $products = array_values(array_filter($products, function ($var) use ($ec) {
+                        return ($var['inward']['aec'] > 3);
+                    }));
+                }
+            }
 
             $products_data = $products;
             $totalInwardNet = 0;
@@ -111,9 +144,9 @@ class InwardController extends Controller
             if (!empty($products)) {
                 foreach ($products as $key => $value) {
                     if ($inward_id != $value['inward']['id']) {
-                        $totalInwardNet += $value['inward']['nwt'];
                         $inward_id = $value['inward']['id'];
                     }
+                    $totalInwardNet += (int) $value['item_value'];
                 }
             }
 
@@ -129,7 +162,7 @@ class InwardController extends Controller
         }
     }
 
-    
+
 
     public function get(Request $request)
     {
@@ -211,9 +244,9 @@ class InwardController extends Controller
                 return response()->json($response, 422);
             }
 
-            \Log::useDailyFiles(storage_path() . env('ACTION_LOG_FOLDER').env('ACTION_LOG_FILE_NAME'));
-            \Log::info("Inward Update Start for ID:".$id);
-            
+            \Log::useDailyFiles(storage_path() . env('ACTION_LOG_FOLDER') . env('ACTION_LOG_FILE_NAME'));
+            \Log::info("Inward Update Start for ID:" . $id);
+
             foreach ($data['products'] as $key => $value) {
                 // if ($value[$key] == "" || $value[$key] == null) {
                 //     $response = ['type' => "error", 'msg' => "Please fill item's fileds"];
@@ -226,7 +259,7 @@ class InwardController extends Controller
                 $product = new Product();
                 $product->fill($value);
                 $product->save();
-                if($id){
+                if ($id) {
                     $this->deleteLog(null, [$product], "new");
                 }
             }
@@ -246,7 +279,7 @@ class InwardController extends Controller
                 }
             }
             DB::commit();
-            \Log::info("Inward Update End for ID:".$id);
+            \Log::info("Inward Update End for ID:" . $id);
 
             $response = ['type' => "success", 'result' => $inward, 'msg' => "Inward Data saved successfully"];
             return response()->json($response, 200);
@@ -302,9 +335,9 @@ class InwardController extends Controller
     {
         DB::beginTransaction();
         try {
-            \Log::useDailyFiles(storage_path() . env('ACTION_LOG_FOLDER').env('ACTION_LOG_FILE_NAME'));
+            \Log::useDailyFiles(storage_path() . env('ACTION_LOG_FOLDER') . env('ACTION_LOG_FILE_NAME'));
             $id = $request->id;
-            \Log::info("Inward Delete Start for ID:".$id);
+            \Log::info("Inward Delete Start for ID:" . $id);
             $user_id = Auth::user()->id;
             //Delete Process
             $inward = $forInward = Inward::findOrFail($id);
@@ -318,10 +351,10 @@ class InwardController extends Controller
             $delete = $inward->delete();
             DB::commit();
             //Log
-            if($delete){
-              $this->deleteLog($forInward, $forProducts);
+            if ($delete) {
+                $this->deleteLog($forInward, $forProducts);
             }
-            \Log::info("Inward Delete End for ID:".$id);
+            \Log::info("Inward Delete End for ID:" . $id);
             $response = ['type' => "success", 'data' => $inward, 'msg' => "Inward Data delete successfully"];
             return response()->json($response, 200);
         } catch (\Exception $e) {
@@ -331,10 +364,10 @@ class InwardController extends Controller
         }
     }
 
-    public function deleteLog($forParent = null, $forChild = [], $action="delete")
+    public function deleteLog($forParent = null, $forChild = [], $action = "delete")
     {
         $events = [];
-        if ($forParent || $forParent!=null || $forParent!="") {
+        if ($forParent || $forParent != null || $forParent != "") {
             $event['module'] = "Inward";
             $event['action'] = $action;
             $event['record'] = $forParent->toArray();
@@ -349,7 +382,7 @@ class InwardController extends Controller
             }
         }
         if (!empty($events)) {
-            $msg = ""; 
+            $msg = "";
             foreach ($events as $k => $r) {
                 $result = [];
                 $module = $r['module'];
@@ -358,7 +391,7 @@ class InwardController extends Controller
                 foreach ($record as $key => $value) {
                     $result[] = "[" . $key . ":" . $value . "]";
                 }
-                $msg .= $module . "-" . $action."\r".implode("-", $result);
+                $msg .= $module . "-" . $action . "\r" . implode("-", $result);
             }
         }
         event(new ActionLog($msg));
