@@ -29,7 +29,6 @@ class Inward extends Model
         'ecu' => 'float', 'ecm' => 'float', 'ecl' => 'float', 'aec' => 'float',
         'm1' => 'float', 'm2' => 'float', 'm3' => 'float', 'am' => 'float',
         'sand' => 'float', 'fibre' => 'float', 'a_bagwt' => 'float',
-        'freight' => 'float',
     ];
 
 

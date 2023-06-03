@@ -76,7 +76,17 @@ class InterController extends Controller
                 return ($var['inter']['date'] >= $start_date) && ($var['inter']['date'] <= $end_date);
             }));
 
-            $data['products'] = $products;
+            $products_data = $products;
+            $totalInwardNet = 0;
+            
+            if (!empty($products)) {
+                foreach ($products as $key => $value) {
+                    $totalInwardNet += (int) $value['item_value'];
+                }
+            }
+
+            $data['products'] = $products_data;
+            $data['totalInwardNet'] = $totalInwardNet;
 
             $response = ['type' => "success", 'data' => $data, 'msg' => "Inter Data fetch successfully"];
             return response()->json($response, 200);
@@ -162,6 +172,7 @@ class InterController extends Controller
                     'total_inward' => $item_value,
                     'total_inbag' => $bags,
                     'balance' => $item_value - $balance->total_outward,
+                    'balance_bag' => $bags - $balance->total_outbag,
                 ];
                 $balance->fill($balance_data);
                 $balance->save();
@@ -195,6 +206,7 @@ class InterController extends Controller
                     'total_inward' => $item_value,
                     'total_inbag' => $bags,
                     'balance' => $item_value - $balance->total_outward,
+                    'balance_bag' => $bags - $balance->total_outbag,
                 ];
                 $balance->fill($balance_data);
                 $balance->save();

@@ -326,6 +326,7 @@ class InwardController extends Controller
             'total_inward' => $item_value,
             'total_inbag' => $bags,
             'balance' => $item_value - $balance->total_outward,
+            'balance_bag' => $bags - $balance->total_outbag,
         ];
         $balance->fill($balance_data);
         $balance->save();

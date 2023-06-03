@@ -177,10 +177,14 @@ class HomeController extends Controller
 
                     $location_name = Location::where('id', $location_id)->value("name");
                     $item_name = Item::where('id', $item['id'])->value("name");
+                    $total_item_value = Balance::where('item_id', $item['id'])->sum("balance");
+                    $tmp_total_bags = Balance::where('item_id', $item['id'])->sum("balance_bag");
 
                     $final_data[$location_id][$item_id]['location_id'] = $location_id;
                     $final_data[$location_id][$item_id]['location_name'] = $location_name;
                     $final_data[$location_id][$item_id]['item_name'] = $item_name;
+                    $final_data[$location_id][$item_id]['total_item_value'] = $total_item_value;
+                    $final_data[$location_id][$item_id]['tmp_total_bags'] = $tmp_total_bags;
                     $final_data[$location_id][$item_id]['item_id'] = $item['id'];
                     $final_data[$location_id][$item_id]['total_inward'] = $total_inward;
                     $final_data[$location_id][$item_id]['total_outward'] = $total_outward;
